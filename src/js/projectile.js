@@ -4,8 +4,8 @@ import {Enemy} from "./enemy.js";
 
 export class Projectile extends Actor  {
     game;
-
-    constructor(x, y, dx, dy, colGroup, game) {
+    isEnemy;
+    constructor(x, y, dx, dy, colGroup, game, isEnemy) {
         super({
             pos: new Vector(x, y),
             vel: new Vector(dx, dy),
@@ -18,8 +18,11 @@ export class Projectile extends Actor  {
         this.w = Resources.Projectile.width;
         this.h = Resources.Projectile.height;
         this.game = game;
+        this.isEnemy = isEnemy;
         this.body.group = colGroup;
     }
+
+
 
 
     onInitialize(engine) {
@@ -34,13 +37,20 @@ export class Projectile extends Actor  {
 
     onCollide(event) {
 
-        if (!(event.other instanceof Projectile)) {
+        if (!(event.other instanceof Projectile) && this.isEnemy === false) {
             this.killProjectile();
             this.game.score += 100;
             event.other.kill();
             event.other.explode();
+        } else {
+            console.log('you got hit');
         }
     }
+
+
+
+
+
 
     killProjectile() {
         this.kill();

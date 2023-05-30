@@ -1,23 +1,29 @@
-import {Actor, Engine, Vector, Color, Debug, Timer, Label, SpriteSheet, SpriteFont, DisplayMode} from "excalibur";
+import {Actor, Engine, Vector, Color, Debug, Random, Timer, Label, SpriteSheet, SpriteFont, DisplayMode} from "excalibur";
 import { Resources, ResourceLoader } from "./resources.js";
 import { Enemy } from "./enemy.js";
 import { Player } from "./player.js";
 import { Background } from "./background.js";
-
+//making frames to spawn enemy's (want to change this using timer)
 let frame = 0;
 let randomFrame = Math.floor(Math.random() * 500 + 500);
+// let enemies = [];
+let random = new Random(1337)
 
+//make game extending as an engine
 export class Game extends Engine {
 
+    //adding all the objects i will use later
     gameover = false;
     score = 0;
     player;
     enemy;
     statistics;
+    statisticsTwo;
     spriteFont;
     backgroundMusic;
     background;
 
+    //constructor, only used for super. Creating height etc.
     constructor() {
         super({
             backgroundColor: Color.Black,
@@ -25,12 +31,12 @@ export class Game extends Engine {
             height: 600
         });
 
-
+        //start the recourceloader and then start the game.
         this.start(ResourceLoader).then(() => this.startGame());
     }
 
-    // onInitialize(engine) {
-    //
+    onInitialize(engine) {
+        this.game = engine;
     //     const timer = new Timer({
     //         fcn: () => this.spawnEnemy(),
     //         repeats: true,
@@ -44,73 +50,142 @@ export class Game extends Engine {
     //     this.add(this.enemy);
     //     console.log()
     // }
+}
 
-    onPostUpdate(engine) {
-        this.enemy = new Enemy(this);
-        if (frame % randomFrame === 0) {
+    //spawning enemies using frames
+    // onPostUpdate(engine) {
+    //     //check if gameover
+    //     if (this.gameover == false) {
+    //         //create enemy object using new Enemy
+    //         this.enemy = new Enemy(this.player, Resources.enemyTwo.toSprite());
+    //         //if statement frames to spawn every random moment
+    //         if (frame % randomFrame === 0) {
+    //             //add the enemy to game
+    //             this.add(this.enemy);
+    //             // enemies.push(this.enemy)
+    //             //make new randomframe for next enemy
+    //             randomFrame = Math.floor(Math.random() * 500 + 500);
+    //             //set frame back to 0
+    //             frame = 0;
+    //             console.log(randomFrame);
+    //         }
+    //         //frames every update(post)
+    //         frame++
+    //     }
+    //
+    //
+    //
+    //
+    // }
+    spawnEnemy() {
+        if (frame % 5 === 0) {
+            this.enemy = new Enemy(this.player, Resources.enemyOne.toSprite(), false, Color.Red, Color.Blue);
+            this.add(this.enemy);
+        } else {
+            this.enemy = new Enemy(this.player, Resources.enemyTwo.toSprite(), true, Color.Chartreuse, Color.Magenta);
             this.add(this.enemy);
 
-            randomFrame = Math.floor(Math.random() * 500 + 500);
-            frame = 0;
-            console.log(randomFrame);
         }
+
         frame++
-
-
     }
-
+    //starting game
     startGame() {
-        this.background = new Background();
-        this.add(this.background);
-        this.backgroundMusic = Resources.music.play(0.05);
-
-        this.player = new Player(20, 100, this);
-
-        this.add(this.player);
-
-
-        const spriteFontSheet = SpriteSheet.fromImageSource({
-            image: Resources.spriteFont,
-            grid: {
-                rows: 4,
-                columns: 12,
-                spriteWidth: 16,
-                spriteHeight: 16,
-            },
-        })
+        //check if gameover (if false) start the game
+        if (this.gameover == false) {
+            //create and add moving background to the game
+            this.background = new Background();
+            this.add(this.background);
+            //add background music to the game
+            // this.backgroundMusic = Resources.music.play(0.05);
+            this.backgroundMusic = Resources.music.play(0.05);
+            this.backgroundMusic.loop = true;
 
 
-        this.spriteFont = new SpriteFont({
-            alphabet: '0123456789: ABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%+-*/=.',
-            caseInsensitive: true,
-            spriteSheet: spriteFontSheet,
-            spacing: 0,
-        })
+            //create and add player to the game
+            this.player = new Player(375, 500);
+            this.add(this.player);
 
 
-        this.statistics = new Label({
-            text: `Score:${Math.ceil(this.score)}`,
-            pos: new Vector(5, 5),
-            font: this.spriteFont
-        });
-        this.add(this.statistics);
+            const timer = new Timer({
+                fcn: () => this.spawnEnemy(),
+                random,
+                randomRange: [0, 1500],
+                interval: 1500,
+                repeats: true,
+            })
+
+
+
+            this.game.currentScene.add(timer)
+            timer.start();
+
+            //create my spritefontsheet using a sprite sheet from internet
+            const spriteFontSheet = SpriteSheet.fromImageSource({
+                image: Resources.spriteFont,
+                grid: {
+                    rows: 4,
+                    columns: 12,
+                    spriteWidth: 16,
+                    spriteHeight: 16,
+                },
+            })
+
+            //creating every letter and number that im going to use
+            this.spriteFont = new SpriteFont({
+                alphabet: '0123456789: ABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%+-*/=.',
+                caseInsensitive: true,
+                //using spritesheet from before
+                spriteSheet: spriteFontSheet,
+                spacing: 0,
+            })
+
+            //label for score
+            this.statistics = new Label({
+                //add text pos and font from spritesheet
+                text: `Score:${Math.ceil(this.score)}`,
+                pos: new Vector(5, 5),
+                font: this.spriteFont
+            });
+            //add the label to the game
+            this.add(this.statistics);
+
+
+            //label for HP
+            this.statisticsTwo = new Label({
+                //add text pos and font again
+                text: `HP:${Math.ceil(this.player.hp)}`,
+                pos: new Vector(5, 25),
+                font: this.spriteFont
+            });
+            //add to the game
+            this.add(this.statisticsTwo);
+        }
+
 
 
 
     }
 
-
+    //if gameover == true
     gameOver() {
         this.gameover = true;
+        //set score to 0
         this.score = 0;
+        //stop moving the player
+        this.player.vel.x = 0;
+        this.background.vel.y = 0;
         this.input.keyboard.off("press");
         this.input.keyboard.off("release");
+        // enemies.splice(0, enemies.length);
+
     }
 
+
+    //use this to refill the points and hp counter
     onPostDraw() {
-        if (this.gameover == false) {
-            this.statistics.text = `Score:${Math.ceil(this.score)}`
-        }
+        this.statistics.text = `Score:${Math.ceil(this.score)}`
+        this.statisticsTwo.text = `HP:${Math.ceil(this.player.hp)}`
     }
 
 }

@@ -10,16 +10,24 @@ import {
     EmitterType,
     Timer,
     SpriteSheet,
-    range, Animation
+    range,
+    Animation,
+    Input
 } from "excalibur";
 import { Resources } from "./resources";
 import { Projectile } from "./projectile.js";
+import { Player } from "./player.js";
+
+let frame = 0;
 
 
 export class Enemy extends Actor {
+    static group = CollisionGroupManager.create('enemy');
     game;
     particles;
-    constructor(game) {
+    player;
+    shooter;
+    constructor(player, type, shooter, b, e) {
         super({
             width: Resources.enemyOne.width,
             height: Resources.enemyOne.height
@@ -35,14 +43,16 @@ export class Enemy extends Actor {
             opacity: 1,
             fadeFlag: true,
             particleLife: 1000,
-            maxSize: 10,
+            maxSize: 5,
             minSize: 1,
-            particleColor: Color.Rose,
+            beginColor: b,
+            endColor: e,
             isEmitting: false
         })
-        this.game = game;
-
-
+        this.player = player;
+        this.sprite = type;
+        this.shooter = shooter;
+        this.body.group = Enemy.group;
         let sheet = SpriteSheet.fromImageSource({
             image: Resources.spriteSheet,
             grid: { rows: 3, columns: 5, spriteWidth: 627, spriteHeight: 627 }
@@ -55,16 +65,17 @@ export class Enemy extends Actor {
     }
 
     onInitialize(engine) {
+        this.game = engine;
         this.game.add(this.particle);
 
         this.rand = new Random();
-        this.sprite = Resources.enemyOne.toSprite();
         this.graphics.use(this.sprite);
         this.w = Resources.enemyOne.width;
         this.h = Resources.enemyOne.height;
+        this.rotation = Math.PI * 1;
         this.pos = new Vector(
             this.rand.integer(this.w, engine.drawWidth - this.w),
-            25
+            0
         );
         this.vel = new Vector(Math.random() * 80 - 40, Math.random() * 80  + 40);
         // flip
@@ -77,19 +88,30 @@ export class Enemy extends Actor {
 
 
     }
-    // onPostUpdate(engine) {
-    //     if (this.pos.x < 0 || this.pos.x + this.w > engine.drawWidth) {
-    //         this.vel.x = -this.vel.x;
-    //     }
-    //     if (this.pos.y < 0 || this.pos.y + this.h > engine.drawHeight ) {
-    //         this.kill();
-    //     }
-    // }
+    onPostUpdate(engine) {
+        if(frame % 200 === 0) {
+            this.enemyShooter();
+            frame = 0;
+        }
 
-    update() {
         this.particle.pos = this.pos;
-    }
+        if (this.pos.x < 0 || this.pos.x + this.w > engine.drawWidth) {
+            this.vel.x = -this.vel.x;
 
+        }
+        if (this.pos.y < 0 || this.pos.y + this.h > engine.drawHeight ) {
+            this.kill();
+            this.game.score -= 100;
+            this.player.hp -= 10;
+            this.player.actions.blink(300, 300, 3);
+
+            if (this.player.hp == 0 || this.game.score < 0) {
+                this.game.gameOver();
+                console.log('gameover');
+            }
+        }
+        frame++
+    }
 
 
     explode() {
@@ -103,6 +125,17 @@ export class Enemy extends Actor {
         this.timeAlive.start()
         Resources.deadSound.play();
 
+    }
+
+    enemyShooter() {
+        if (this.shooter === true) {
+
+            Resources.hitSound.play(0.3);
+            let projectile = new Projectile(this.pos.x, this.pos.y - 1000, 0, 1000, Enemy.group, this.game, true);
+            projectile.rotation = Math.PI * 1;
+            this.game.add(projectile);
+            console.log('thisisshooter');
+        }
     }
 
     removeParticles() {

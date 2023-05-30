@@ -1,6 +1,7 @@
 import { Actor, Vector, Input, CollisionType, CollisionGroupManager } from "excalibur";
 import { Resources } from "./resources.js";
 import { Projectile } from "./projectile.js";
+import {Enemy} from "./enemy.js";
 
 export class Player extends Actor  {
     static group = CollisionGroupManager.create('player');
@@ -8,7 +9,7 @@ export class Player extends Actor  {
     hp = 100;
     flying;
 
-    constructor(x, y, game) {
+    constructor(x, y) {
         super({
             pos: new Vector(x, y),
             width: Resources.Hood.width,
@@ -20,7 +21,6 @@ export class Player extends Actor  {
         this.flying = Resources.secondForm.toSprite();
 
         this.scale = new Vector(1, 1)
-        this.game = game;
         this.body.group = Player.group;
 
     }
@@ -71,7 +71,7 @@ export class Player extends Actor  {
 
         if (engine.input.keyboard.wasPressed((Input.Keys.Space))) {
             Resources.hitSound.play(0.3);
-            let projectile = new Projectile(this.pos.x, this.pos.y + 1000, 0, -1000, Player.group, this.game);
+            let projectile = new Projectile(this.pos.x, this.pos.y + 1000, 0, -1000, Player.group, this.game, false);
 
             engine.add(projectile);
 
@@ -83,21 +83,28 @@ export class Player extends Actor  {
 
     }
 
-    onInitialize(_engine) {
-        this.on('collisionstart', (event) => this.killSomething(event));
+    onInitialize(engine) {
+        this.game = engine;
+        this.on('collisionstart', (event) => this.getHit(event));
+
     }
 
-    killSomething(event) {
-        if (!(event.other instanceof Player)) {
+    getHit(event) {
+        if (!(event.other instanceof Player) && !(event.other instanceof Projectile)) {
             event.other.kill();
             event.other.explode();
             this.game.score += 100;
             this.hp -= 10;
-            console.log(this.hp);
-            console.log(this.game.score);
+            this.actions.blink(300, 300, 2);
         }
 
-        if (!(event.other instanceof Player) && this.hp == 0) {
+        if (event.other instanceof Projectile) {
+            this.hp -= 10;
+            this.actions.blink(300, 300, 2);
+        }
+
+
+        if (!(event.other instanceof Player) && this.hp == 0 || this.game.score < 0) {
             this.game.gameOver();
             console.log('gameover');
         }

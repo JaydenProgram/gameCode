@@ -11,6 +11,7 @@ import spriteSheet from '../images/explosionSprite.png'
 import spriteFont from '../images/font.png'
 import secondForm from '../images/attackMode.png'
 import background from '../images/background.png'
+import test from '../images/background-test.png'
 
 const Resources = {
     Hood: new ImageSource(playerImage),
@@ -21,6 +22,7 @@ const Resources = {
     enemyTwo: new ImageSource(enemyTwo),
     spriteSheet: new ImageSource(spriteSheet),
     background: new ImageSource(background),
+    test: new ImageSource(test),
 
     spriteFont: new ImageSource(spriteFont),
 
