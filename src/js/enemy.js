@@ -123,14 +123,14 @@ export class Enemy extends Actor {
         })
         this.game.add(this.timeAlive);
         this.timeAlive.start()
-        Resources.deadSound.play();
+        Resources.deadSound.play(0.5);
 
     }
 
     enemyShooter() {
         if (this.shooter === true) {
 
-            Resources.hitSound.play(0.3);
+            Resources.hitSound.play(0.2);
             let projectile = new Projectile(this.pos.x, this.pos.y - 1000, 0, 1000, Enemy.group, this.game, true);
             projectile.rotation = Math.PI * 1;
             this.game.add(projectile);

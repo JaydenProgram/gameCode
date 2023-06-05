@@ -7,11 +7,13 @@ import enemyTwo from '../images/EnemyTwo.png'
 import hitSound from '../sounds/bruh fire force sound effect.mp3'
 import deadSound from '../sounds/deadSound.mp3'
 import music from '../sounds/Grimes - Genesis (Instrumental).mp3'
+import damaged from '../sounds/gethit.mp3'
 import spriteSheet from '../images/explosionSprite.png'
 import spriteFont from '../images/font.png'
 import secondForm from '../images/attackMode.png'
 import background from '../images/background.png'
 import test from '../images/background-test.png'
+import reset from '../images/retryButton.png'
 
 const Resources = {
     Hood: new ImageSource(playerImage),
@@ -23,12 +25,14 @@ const Resources = {
     spriteSheet: new ImageSource(spriteSheet),
     background: new ImageSource(background),
     test: new ImageSource(test),
+    reset: new ImageSource(reset),
 
     spriteFont: new ImageSource(spriteFont),
 
     hitSound: new Sound(hitSound),
     deadSound: new Sound(deadSound),
-    music: new Sound(music)
+    music: new Sound(music),
+    damage: new Sound(damaged)
 
 }
 const resourceArray = []

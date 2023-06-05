@@ -3,10 +3,11 @@ import { Resources, ResourceLoader } from "./resources.js";
 import { Enemy } from "./enemy.js";
 import { Player } from "./player.js";
 import { Background } from "./background.js";
+import { GameOverScreen } from "./gameOverScreen.js";
+import { Fonts } from "./fonts.js";
 //making frames to spawn enemy's (want to change this using timer)
 let frame = 0;
 let randomFrame = Math.floor(Math.random() * 500 + 500);
-// let enemies = [];
 let random = new Random(1337)
 
 //make game extending as an engine
@@ -17,11 +18,14 @@ export class Game extends Engine {
     score = 0;
     player;
     enemy;
+    enemies = [];
+    timer;
     statistics;
     statisticsTwo;
     spriteFont;
     backgroundMusic;
     background;
+    gameOverScreen;
 
     //constructor, only used for super. Creating height etc.
     constructor() {
@@ -78,16 +82,21 @@ export class Game extends Engine {
     //
     // }
     spawnEnemy() {
-        if (frame % 5 === 0) {
-            this.enemy = new Enemy(this.player, Resources.enemyOne.toSprite(), false, Color.Red, Color.Blue);
-            this.add(this.enemy);
-        } else {
-            this.enemy = new Enemy(this.player, Resources.enemyTwo.toSprite(), true, Color.Chartreuse, Color.Magenta);
-            this.add(this.enemy);
+        if (this.gameover === false) {
+            if (frame % 5 === 0) {
+                this.enemy = new Enemy(this.player, Resources.enemyOne.toSprite(), false, Color.Red, Color.Blue);
+                this.add(this.enemy);
+                this.enemies.push(this.enemy);
+            } else {
+                this.enemy = new Enemy(this.player, Resources.enemyTwo.toSprite(), true, Color.Chartreuse, Color.Magenta);
+                this.add(this.enemy);
+                this.enemies.push(this.enemy);
 
+            }
+
+            frame++
         }
 
-        frame++
     }
     //starting game
     startGame() {
@@ -98,16 +107,17 @@ export class Game extends Engine {
             this.add(this.background);
             //add background music to the game
             // this.backgroundMusic = Resources.music.play(0.05);
+
             this.backgroundMusic = Resources.music.play(0.05);
             this.backgroundMusic.loop = true;
 
 
             //create and add player to the game
-            this.player = new Player(375, 500);
+            this.player = new Player(this.screen.drawWidth / 2, 500);
             this.add(this.player);
 
 
-            const timer = new Timer({
+            this.timer = new Timer({
                 fcn: () => this.spawnEnemy(),
                 random,
                 randomRange: [0, 1500],
@@ -117,8 +127,8 @@ export class Game extends Engine {
 
 
 
-            this.game.currentScene.add(timer)
-            timer.start();
+            this.game.currentScene.add(this.timer)
+            this.timer.start();
 
             //create my spritefontsheet using a sprite sheet from internet
             const spriteFontSheet = SpriteSheet.fromImageSource({
@@ -170,14 +180,39 @@ export class Game extends Engine {
     //if gameover == true
     gameOver() {
         this.gameover = true;
-        //set score to 0
-        this.score = 0;
-        //stop moving the player
-        this.player.vel.x = 0;
-        this.background.vel.y = 0;
-        this.input.keyboard.off("press");
-        this.input.keyboard.off("release");
-        // enemies.splice(0, enemies.length);
+        if (this.gameover === true) {
+            this.enemies.forEach((enemy) => {
+                this.remove(enemy);
+            });
+
+
+
+            //stop all player movements, rotation, and graphics
+            this.player.vel.x = 0;
+            this.player.vel.y = 0;
+            this.player.rotation = 0;
+            this.player.graphics.use(this.player.sprite);
+            this.player.actions.clearActions();
+
+            //stop background and add gameoverscreen
+            this.background.vel.y = 0;
+            this.gameOverScreen = new GameOverScreen(this.score, this)
+            this.add(this.gameOverScreen)
+            //set score to 0
+            this.score = 0;
+        }
+
+
+    }
+
+    resetGame() {
+        this.gameover = false;
+        if (this.gameover === false) {
+            this.remove(this.gameOverScreen);
+            this.player.pos = new Vector(this.screen.drawWidth / 2, 500);
+            this.player.hp = 100;
+            this.background.vel.y = 100;
+        }
 
     }
 

@@ -26,58 +26,63 @@ export class Player extends Actor  {
     }
 
     onPreUpdate(engine) {
-        let xspeed = 0
-        let yspeed = 0
+        if (this.game.gameover === false) {
+            let xspeed = 0
+            let yspeed = 0
 
 
-        if (engine.input.keyboard.isHeld(Input.Keys.W) || engine.input.keyboard.isHeld(Input.Keys.Up)) {
-            yspeed = -400
-            this.graphics.use(this.flying);
+            if (engine.input.keyboard.isHeld(Input.Keys.W) || engine.input.keyboard.isHeld(Input.Keys.Up)) {
+                yspeed = -400
+                this.graphics.use(this.flying);
+            }
+
+            if (engine.input.keyboard.isHeld(Input.Keys.S) || engine.input.keyboard.isHeld(Input.Keys.Down)) {
+                yspeed = 400
+                this.graphics.use(this.flying);
+            }
+            if (engine.input.keyboard.isHeld(Input.Keys.A)) {
+                xspeed = -400
+                this.rotation = Math.PI * -0.1;
+                this.graphics.use(this.flying);
+            }
+            if (engine.input.keyboard.isHeld(Input.Keys.D)) {
+                xspeed = 400
+                this.rotation = Math.PI * 0.1;
+                this.graphics.use(this.flying);
+            }
+
+            if (engine.input.keyboard.wasReleased(Input.Keys.W) || engine.input.keyboard.wasReleased(Input.Keys.Up)) {
+                this.graphics.use(this.sprite);
+            }
+
+            if (engine.input.keyboard.wasReleased(Input.Keys.S) || engine.input.keyboard.wasReleased(Input.Keys.Down)) {
+                this.graphics.use(this.sprite);
+            }
+
+            if (engine.input.keyboard.wasReleased(Input.Keys.A)) {
+                this.rotation = 0;
+                this.graphics.use(this.sprite);
+            }
+            if (engine.input.keyboard.wasReleased(Input.Keys.D)) {
+                this.rotation = 0;
+                this.graphics.use(this.sprite);
+            }
+
+            this.vel = new Vector(xspeed, yspeed)
+
+            if (engine.input.keyboard.wasPressed((Input.Keys.Space))) {
+                Resources.hitSound.play(0.2);
+                let projectile = new Projectile(this.pos.x, this.pos.y + 1000, 0, -1000, Player.group, this.game, false);
+
+                engine.add(projectile);
+
+
+
+            } else {
+
+            }
         }
 
-        if (engine.input.keyboard.isHeld(Input.Keys.S) || engine.input.keyboard.isHeld(Input.Keys.Down)) {
-            yspeed = 400
-            this.graphics.use(this.flying);
-        }
-        if (engine.input.keyboard.isHeld(Input.Keys.A)) {
-            xspeed = -400
-            this.rotation = Math.PI * -0.1;
-            this.graphics.use(this.flying);
-        }
-        if (engine.input.keyboard.isHeld(Input.Keys.D)) {
-            xspeed = 400
-            this.rotation = Math.PI * 0.1;
-            this.graphics.use(this.flying);
-        }
-
-        if (engine.input.keyboard.wasReleased(Input.Keys.W) || engine.input.keyboard.wasReleased(Input.Keys.Up)) {
-            this.graphics.use(this.sprite);
-        }
-
-        if (engine.input.keyboard.wasReleased(Input.Keys.S) || engine.input.keyboard.wasReleased(Input.Keys.Down)) {
-            this.graphics.use(this.sprite);
-        }
-
-        if (engine.input.keyboard.wasReleased(Input.Keys.A)) {
-            this.rotation = 0;
-            this.graphics.use(this.sprite);
-        }
-        if (engine.input.keyboard.wasReleased(Input.Keys.D)) {
-            this.rotation = 0;
-            this.graphics.use(this.sprite);
-        }
-
-        this.vel = new Vector(xspeed, yspeed)
-
-        if (engine.input.keyboard.wasPressed((Input.Keys.Space))) {
-            Resources.hitSound.play(0.3);
-            let projectile = new Projectile(this.pos.x, this.pos.y + 1000, 0, -1000, Player.group, this.game, false);
-
-            engine.add(projectile);
-
-
-
-        }
 
 
 
@@ -99,6 +104,8 @@ export class Player extends Actor  {
         }
 
         if (event.other instanceof Projectile) {
+            Resources.damage.play(0.5);
+            event.other.kill();
             this.hp -= 10;
             this.actions.blink(300, 300, 2);
         }
