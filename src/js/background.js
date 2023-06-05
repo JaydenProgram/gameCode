@@ -19,6 +19,7 @@ export class Background extends Actor{
                 },
                 {
                     graphic: this.image,
+                    //changed to - the image height to change directions
                     pos: new Vector(0, -(this.image.height))
                 }
             ]

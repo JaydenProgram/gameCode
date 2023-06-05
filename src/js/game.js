@@ -5,6 +5,7 @@ import { Player } from "./player.js";
 import { Background } from "./background.js";
 import { GameOverScreen } from "./gameOverScreen.js";
 import { Fonts } from "./fonts.js";
+import {StartScreen} from "./startScreen.js";
 //making frames to spawn enemy's (want to change this using timer)
 let frame = 0;
 let randomFrame = Math.floor(Math.random() * 500 + 500);
@@ -15,6 +16,7 @@ export class Game extends Engine {
 
     //adding all the objects i will use later
     gameover = false;
+    noRetry = true;
     score = 0;
     player;
     enemy;
@@ -25,7 +27,9 @@ export class Game extends Engine {
     spriteFont;
     backgroundMusic;
     background;
+    startScreen;
     gameOverScreen;
+
 
     //constructor, only used for super. Creating height etc.
     constructor() {
@@ -40,6 +44,7 @@ export class Game extends Engine {
     }
 
     onInitialize(engine) {
+        //creating the this.game for easier use
         this.game = engine;
     //     const timer = new Timer({
     //         fcn: () => this.spawnEnemy(),
@@ -81,17 +86,27 @@ export class Game extends Engine {
     //
     //
     // }
+
+    //all these are different type of enemies, they use different spawn rates and different types of sprites
+    //they all get pushed to the array, used to delete after gameOver
     spawnEnemy() {
-        if (this.gameover === false) {
-            if (frame % 5 === 0) {
-                this.enemy = new Enemy(this.player, Resources.enemyOne.toSprite(), false, Color.Red, Color.Blue);
+        if (this.gameover === false && this.noRetry === false) {
+            if (frame % 8 === 0) {
+                this.enemy = new Enemy(this.player, Resources.Planet.toSprite(), true, false, Color.Orange, Color.Black);
+                this.add(this.enemy);
+                this.enemies.push(this.enemy);
+            } else if (frame % 10 === 0) {
+                this.enemy = new Enemy(this.player, Resources.Meteor.toSprite(), true, false, Color.Gray, Color.Black);
+                this.add(this.enemy);
+                this.enemies.push(this.enemy);
+            } else if (frame % 5 === 0) {
+                this.enemy = new Enemy(this.player, Resources.enemyOne.toSprite(), false, false, Color.Red, Color.Blue);
                 this.add(this.enemy);
                 this.enemies.push(this.enemy);
             } else {
-                this.enemy = new Enemy(this.player, Resources.enemyTwo.toSprite(), true, Color.Chartreuse, Color.Magenta);
+                this.enemy = new Enemy(this.player, Resources.enemyTwo.toSprite(), false, true, Color.Chartreuse, Color.Magenta);
                 this.add(this.enemy);
                 this.enemies.push(this.enemy);
-
             }
 
             frame++
@@ -101,7 +116,9 @@ export class Game extends Engine {
     //starting game
     startGame() {
         //check if gameover (if false) start the game
-        if (this.gameover == false) {
+        if (this.gameover === false) {
+
+
             //create and add moving background to the game
             this.background = new Background();
             this.add(this.background);
@@ -116,17 +133,17 @@ export class Game extends Engine {
             this.player = new Player(this.screen.drawWidth / 2, 500);
             this.add(this.player);
 
-
+            //this timer is used for spawning enemies at different rates, the interval is how fast they spawn
             this.timer = new Timer({
                 fcn: () => this.spawnEnemy(),
                 random,
-                randomRange: [0, 1500],
-                interval: 1500,
+                randomRange: [0, 1000],
+                interval: 1000,
                 repeats: true,
             })
 
 
-
+            //used to add the timer to the game
             this.game.currentScene.add(this.timer)
             this.timer.start();
 
@@ -170,6 +187,12 @@ export class Game extends Engine {
             });
             //add to the game
             this.add(this.statisticsTwo);
+
+            //use this to make the first start screen
+            if (this.noRetry === true) {
+                this.realStart();
+            }
+
         }
 
 
@@ -181,11 +204,14 @@ export class Game extends Engine {
     gameOver() {
         this.gameover = true;
         if (this.gameover === true) {
+            //delete all enemies on screen using the lenght of the enemies.array
             this.enemies.forEach((enemy) => {
                 this.remove(enemy);
+
             });
-
-
+            //delete everything from the array
+            this.enemies.splice(0, this.enemies.length);
+            console.log(this.enemies);
 
             //stop all player movements, rotation, and graphics
             this.player.vel.x = 0;
@@ -205,7 +231,32 @@ export class Game extends Engine {
 
     }
 
+    realStart() {
+        //show the start screen with a start button
+        this.startScreen = new StartScreen();
+        this.add(this.startScreen);
+
+        //stop the background from moving
+        this.background.vel.y = 0;
+
+
+    }
+    //this is if you press the startbutton on startscreen
+    startTheGame() {
+        //it will stop showing the start screen untill you reset your browser
+        this.noRetry = false;
+        if (this.noRetry === false) {
+            //it will also start the background and everything else
+            this.remove(this.startScreen);
+            this.background.vel.y = 100;
+
+        }
+
+    }
+
     resetGame() {
+        //is used when retry button is pressed
+        //it will delete the gameover screen and start spawning everything again, using gameover === false;
         this.gameover = false;
         if (this.gameover === false) {
             this.remove(this.gameOverScreen);

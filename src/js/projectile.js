@@ -3,8 +3,10 @@ import { Resources, ResourceLoader } from "./resources.js";
 import {Enemy} from "./enemy.js";
 
 export class Projectile extends Actor  {
+    //projectile actor for enemies and normal player
     game;
     isEnemy;
+    //to see if it is an enemy projectile it is given with parameters again
     constructor(x, y, dx, dy, colGroup, game, isEnemy) {
         super({
             pos: new Vector(x, y),
@@ -24,11 +26,10 @@ export class Projectile extends Actor  {
 
 
 
-
     onInitialize(engine) {
         this.pos.x += this.vel.x;
         this.pos.y += this.vel.y;
-
+        //collision events and viewport, viewport is used to see if it is out of frame and delete it
         this.on('collisionstart', (event) => this.onCollide(event));
 
 
@@ -36,14 +37,23 @@ export class Projectile extends Actor  {
     }
 
     onCollide(event) {
-
+        //again it will check what it hits and if it hits something it will give points based of that
         if (!(event.other instanceof Projectile) && this.isEnemy === false) {
             this.killProjectile();
-            this.game.score += 100;
+            if (this.game.enemy.planet === false) {
+                this.game.score += 100;
+            } else {
+                this.game.score += 50;
+                if (this.game.player.hp < 100) {
+                    this.game.player.hp += 5;
+                }
+
+            }
+
             event.other.kill();
             event.other.explode();
         } else {
-            console.log('you got hit');
+
         }
     }
 
@@ -51,7 +61,7 @@ export class Projectile extends Actor  {
 
 
 
-
+    //kill the own projectile
     killProjectile() {
         this.kill();
     }

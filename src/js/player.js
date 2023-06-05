@@ -3,12 +3,16 @@ import { Resources } from "./resources.js";
 import { Projectile } from "./projectile.js";
 import {Enemy} from "./enemy.js";
 
+
 export class Player extends Actor  {
+    //different collision group, its used for the projectiles and the player itself
     static group = CollisionGroupManager.create('player');
+    //getting the game, using Hp and flying for the animations
     game;
     hp = 100;
     flying;
 
+    //only parameters used are location since its only a player
     constructor(x, y) {
         super({
             pos: new Vector(x, y),
@@ -17,7 +21,7 @@ export class Player extends Actor  {
         });
         this.sprite = Resources.Hood.toSprite();
         this.graphics.use(this.sprite);
-
+        //flying uses the different graphic
         this.flying = Resources.secondForm.toSprite();
 
         this.scale = new Vector(1, 1)
@@ -25,8 +29,11 @@ export class Player extends Actor  {
 
     }
 
+    //movement, uses WASD and changes the speed, when changing it also uses different graphics
+    //rotation is also added when it goes left or right
+    //idle animation is just the ship
     onPreUpdate(engine) {
-        if (this.game.gameover === false) {
+        if (this.game.gameover === false && this.game.noRetry === false) {
             let xspeed = 0
             let yspeed = 0
 
@@ -69,16 +76,15 @@ export class Player extends Actor  {
             }
 
             this.vel = new Vector(xspeed, yspeed)
-
+            //this is used to fire projectiles
+            //same as enemies, it spawns and checks what type of projectil it iss
             if (engine.input.keyboard.wasPressed((Input.Keys.Space))) {
                 Resources.hitSound.play(0.2);
                 let projectile = new Projectile(this.pos.x, this.pos.y + 1000, 0, -1000, Player.group, this.game, false);
-
                 engine.add(projectile);
 
-
-
-            } else {
+            //i don't know if this is used but doesn't seem to do anything
+            // } else {
 
             }
         }
@@ -89,20 +95,34 @@ export class Player extends Actor  {
     }
 
     onInitialize(engine) {
+        //adding the collision events at the start of adding the player
         this.game = engine;
         this.on('collisionstart', (event) => this.getHit(event));
 
     }
 
     getHit(event) {
+        //checks if it is an enemy
+        //it deletes and adds points based off the kind of enemy
         if (!(event.other instanceof Player) && !(event.other instanceof Projectile)) {
             event.other.kill();
             event.other.explode();
-            this.game.score += 100;
-            this.hp -= 10;
+            if (this.game.enemy.planet === false) {
+                this.game.score += 100;
+            } else {
+                this.game.score += 50;
+                if (this.hp < 100) {
+                    this.hp += 5;
+                }
+            }
+            if (this.game.enemy.planet === false) {
+                this.hp -= 10;
+            }
+            //if you are hit you will create an action
             this.actions.blink(300, 300, 2);
         }
 
+        //these are projectiles for the enemies and will hurt the player based on if you are hit
         if (event.other instanceof Projectile) {
             Resources.damage.play(0.5);
             event.other.kill();
@@ -110,7 +130,7 @@ export class Player extends Actor  {
             this.actions.blink(300, 300, 2);
         }
 
-
+        //game over event
         if (!(event.other instanceof Player) && this.hp == 0 || this.game.score < 0) {
             this.game.gameOver();
             console.log('gameover');
