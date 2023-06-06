@@ -131,7 +131,7 @@ export class Player extends Actor  {
         }
 
         //game over event
-        if (this.hp == 0 || this.game.score < 0) {
+        if (this.hp === 0 || this.game.score < 0) {
             this.game.gameOver();
             console.log('gameover');
         }
