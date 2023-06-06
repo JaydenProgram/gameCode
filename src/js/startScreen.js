@@ -25,7 +25,7 @@ export class StartScreen extends Fonts {
 To move in this game use WASD
 Press space to shoot an enemy
 And get the highest score!
-!Meteor's give HP!`,
+!Meteors give HP!`,
             pos: new Vector(200, 190),
             font: this.spriteFont
         });
