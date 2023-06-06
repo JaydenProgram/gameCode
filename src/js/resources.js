@@ -1,4 +1,4 @@
-import {ImageSource, Sound, Resource, Loader, Rectangle, SpriteSheet} from 'excalibur'
+import {ImageSource, Sound, Resource, Loader, Rectangle, SpriteSheet, Color} from 'excalibur'
 import projectile from '../images/mainShot.png'
 import laser from '../images/laser.png'
 import playerImage from '../images/player.png'
@@ -18,6 +18,7 @@ import background from '../images/background.png'
 import test from '../images/background-test.png'
 import reset from '../images/retryButton.png'
 import start from '../images/startButton.png'
+import logo from '../images/logo.png'
 
 const Resources = {
     Hood: new ImageSource(playerImage),
@@ -50,4 +51,9 @@ for (const key in Resources) {
 
 
 const ResourceLoader = new Loader(resourceArray)
+ResourceLoader.logo = logo;
+ResourceLoader.logoWidth = 300;
+ResourceLoader.logoHeight = 225;
+ResourceLoader.backgroundColor = Color.Black;
+
 export { Resources, ResourceLoader }
