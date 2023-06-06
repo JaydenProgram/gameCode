@@ -46,46 +46,9 @@ export class Game extends Engine {
     onInitialize(engine) {
         //creating the this.game for easier use
         this.game = engine;
-    //     const timer = new Timer({
-    //         fcn: () => this.spawnEnemy(),
-    //         repeats: true,
-    //         interval: 500,
-    //     })
-    //     engine.currentScene.add(timer);
-    //     timer.start();
-    // }
-    //
-    // spawnEnemy() {
-    //     this.add(this.enemy);
-    //     console.log()
-    // }
 }
 
-    //spawning enemies using frames
-    // onPostUpdate(engine) {
-    //     //check if gameover
-    //     if (this.gameover == false) {
-    //         //create enemy object using new Enemy
-    //         this.enemy = new Enemy(this.player, Resources.enemyTwo.toSprite());
-    //         //if statement frames to spawn every random moment
-    //         if (frame % randomFrame === 0) {
-    //             //add the enemy to game
-    //             this.add(this.enemy);
-    //             // enemies.push(this.enemy)
-    //             //make new randomframe for next enemy
-    //             randomFrame = Math.floor(Math.random() * 500 + 500);
-    //             //set frame back to 0
-    //             frame = 0;
-    //             console.log(randomFrame);
-    //         }
-    //         //frames every update(post)
-    //         frame++
-    //     }
-    //
-    //
-    //
-    //
-    // }
+
 
     //all these are different type of enemies, they use different spawn rates and different types of sprites
     //they all get pushed to the array, used to delete after gameOver

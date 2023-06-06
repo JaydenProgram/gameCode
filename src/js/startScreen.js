@@ -1,14 +1,15 @@
-import {Vector, Label, Actor, Scene} from "excalibur";
+import {Vector, Label, Actor, Scene, CollisionType} from "excalibur";
 import { Resources } from "./resources.js";
 import { Fonts } from "./fonts.js";
 import {GameOverScreen} from "./gameOverScreen.js";
 
-export class StartScreen extends GameOverScreen {
+export class StartScreen extends Fonts {
 
 
     engine;
     button;
     label;
+
 
     constructor() {
         super()
@@ -18,12 +19,14 @@ export class StartScreen extends GameOverScreen {
     //n event from the game itself
     onInitialize(Engine) {
         this.engine = Engine
+
         this.label = new Label({
             text: `This is Space Fighters!
 To move in this game use WASD
 Press space to shoot an enemy
-And get the highest score!`,
-            pos: new Vector(200, 200),
+And get the highest score!
+!Meteor's give HP!`,
+            pos: new Vector(200, 190),
             font: this.spriteFont
         });
 
@@ -32,7 +35,8 @@ And get the highest score!`,
             x: 240,
             y: 300,
             width: Resources.Start.width,
-            height: Resources.Start.height
+            height: Resources.Start.height,
+            collisionType: CollisionType.PreventCollision
         })
         this.button.graphics.use(Resources.Start.toSprite())
         this.button.on('pointerup', () => {this.engine.startTheGame()})

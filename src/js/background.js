@@ -7,7 +7,7 @@ export class Background extends Actor{
     constructor() {
         super()
         //use background image and anchor to center the background
-        this.image = Resources.background.toSprite()
+        this.image = Resources.test.toSprite()
         this.anchor = new Vector(0, 0)
 
         //create a group of two to use after one another

@@ -60,6 +60,7 @@ export class Enemy extends Actor {
         this.sprite = type;
         this.shooter = shooter;
         this.planet = planet;
+
         this.body.group = Enemy.group;
 
         // let sheet = SpriteSheet.fromImageSource({
@@ -139,7 +140,7 @@ export class Enemy extends Actor {
             }
 
             //game over for when hp or score is low
-            if (this.player.hp == 0 || this.game.score < 0) {
+            if (this.player.hp === 0 || this.game.score < 0) {
                 this.game.gameOver();
                 console.log('gameover');
             }

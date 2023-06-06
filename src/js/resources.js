@@ -4,6 +4,7 @@ import laser from '../images/laser.png'
 import playerImage from '../images/player.png'
 import planet from '../images/basicPlanet.png'
 import meteor from '../images/basicMeteor.png'
+import power from '../images/powerUp.png'
 import enemyOne from '../images/enemyOne.png'
 import enemyTwo from '../images/EnemyTwo.png'
 import hitSound from '../sounds/bruh fire force sound effect.mp3'
@@ -25,6 +26,7 @@ const Resources = {
     Laser: new ImageSource(laser),
     Planet: new ImageSource(planet),
     Meteor: new ImageSource(meteor),
+    Power: new ImageSource(power),
     enemyOne: new ImageSource(enemyOne),
     enemyTwo: new ImageSource(enemyTwo),
     spriteSheet: new ImageSource(spriteSheet),

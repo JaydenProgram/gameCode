@@ -11,6 +11,7 @@ export class Player extends Actor  {
     game;
     hp = 100;
     flying;
+    superProjectile = false;
 
     //only parameters used are location since its only a player
     constructor(x, y) {
@@ -18,12 +19,12 @@ export class Player extends Actor  {
             pos: new Vector(x, y),
             width: Resources.Hood.width,
             height: Resources.Hood.height
+
         });
         this.sprite = Resources.Hood.toSprite();
         this.graphics.use(this.sprite);
         //flying uses the different graphic
         this.flying = Resources.secondForm.toSprite();
-
         this.scale = new Vector(1, 1)
         this.body.group = Player.group;
 
@@ -77,14 +78,11 @@ export class Player extends Actor  {
 
             this.vel = new Vector(xspeed, yspeed)
             //this is used to fire projectiles
-            //same as enemies, it spawns and checks what type of projectil it iss
+            //same as enemies, it spawns and checks what type of projectil it is
             if (engine.input.keyboard.wasPressed((Input.Keys.Space))) {
                 Resources.hitSound.play(0.2);
                 let projectile = new Projectile(this.pos.x, this.pos.y + 1000, 0, -1000, Player.group, this.game, false);
                 engine.add(projectile);
-
-            //i don't know if this is used but doesn't seem to do anything
-            // } else {
 
             }
         }
@@ -117,9 +115,11 @@ export class Player extends Actor  {
             }
             if (this.game.enemy.planet === false) {
                 this.hp -= 10;
+                //if you are hit you will create an action
+                this.actions.blink(300, 300, 2);
             }
-            //if you are hit you will create an action
-            this.actions.blink(300, 300, 2);
+
+
         }
 
         //these are projectiles for the enemies and will hurt the player based on if you are hit
@@ -131,7 +131,7 @@ export class Player extends Actor  {
         }
 
         //game over event
-        if (!(event.other instanceof Player) && this.hp == 0 || this.game.score < 0) {
+        if (this.hp == 0 || this.game.score < 0) {
             this.game.gameOver();
             console.log('gameover');
         }

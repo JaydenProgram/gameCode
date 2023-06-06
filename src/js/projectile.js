@@ -19,6 +19,7 @@ export class Projectile extends Actor  {
         this.graphics.use(this.sprite);
         this.w = Resources.Projectile.width;
         this.h = Resources.Projectile.height;
+
         this.game = game;
         this.isEnemy = isEnemy;
         this.body.group = colGroup;
